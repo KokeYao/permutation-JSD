@@ -1,0 +1,150 @@
+
+%
+% compute the variable-step multiscale fractional reverse permutation JS distance 
+% at a scale between two time series 
+% 
+%
+%
+%
+% inputs
+%
+%   datain - univariate time series, a vector
+%
+%   s - scale, a positive integer
+%
+%   m - embedding dimensin, a positive integer
+%
+%   tau - time delay, a positive integer
+%
+%   alpha -    -1< alpha <1    fractional exponent 
+%
+%
+%
+%
+% outputs
+%
+%   djssc - the score of distance at a given scale
+%
+%
+%
+%
+% e.g.
+%
+%  [ DJS ] = vsmsfracrvsdjsperm( rrits, 5, 3, 0.3 );
+%
+%
+%
+% refs
+%
+%   [1] Financial time series analysis based on fractional and multiscale permutation entropy
+%
+%   [2] 2022 Fault severity assessment for rotating machinery via improved 
+%        Lempel–Ziv complexity based on variable-step multiscale analysis and equiprobable 
+%        space partitioning
+%
+%
+%
+%
+%
+% author:  koke yao    1064686304@qq.com
+%
+%
+%
+%
+
+
+
+function [ DJS ] = vsmsfracrvspjsd( datain, s, m, tau, alpha )
+
+
+
+%%  predefination
+
+
+djssc = zeros( s, 1 );
+
+
+
+
+%%  vectorization
+
+
+x = datain( : );
+clear  datain
+
+
+
+
+%%  variable-step multiscale coarse-grain process
+
+
+xcg = vscoarsegrain( x, s );
+clear  x
+
+
+
+
+%%  computation
+
+
+for  k = 1 : 1 : s
+
+    djssc( k, 1 ) = fracrvspjsd( xcg{ k, 1 }, m, tau, alpha );  % fractional reverse JS distance
+
+end
+
+
+
+
+%%  computation the average
+
+
+DJS = mean( djssc, 1 );
+
+
+
+
+
+
+
+%%  subfunction   variable-step multiscale coarse-grain process
+
+
+    function cgdata = vscoarsegrain( sig, SC )
+
+        if  SC == 1
+
+            cgdata{ 1, 1 } = sig;
+
+        else
+
+            N = length( sig );
+
+            cgdata = cell( SC, 1 );
+
+            for isc = 1 : 1 : SC
+
+                for j = 1 : 1 : ( N - SC ) / isc + 1
+
+                    cgdata{ isc, 1 }( j, 1 ) = mean( sig( ( j - 1 ) * isc + 1 : 1 : ( j - 1 ) * isc + SC ), 1 );
+
+                end
+
+            end
+
+        end
+
+    end
+
+
+
+
+end
+
+
+
+
+
+
+
+
